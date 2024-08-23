@@ -1,0 +1,26 @@
+
+Dim swApp As SldWorks.SldWorks
+Dim CPath As String
+Dim directoryPath_2 As String
+Dim directoryPath_3 As String
+
+Sub main()
+    
+    Set swApp = Application.SldWorks
+    ' Get the current macro path using swApp
+    CPath = swApp.GetCurrentMacroPathName()
+    ' Display CPath in a message box for debugging
+    Dim directoryPath As String
+    directoryPath = Left(CPath, InStrRev(CPath, "\"))
+    directoryPath_2 = directoryPath & "Quantidade_Assembly.swp"
+    directoryPath_3 = directoryPath & "cutlist.swp"
+    
+    RunMacro directoryPath_2, "Quantidade_Assembly1", "main"
+    RunMacro directoryPath_3, "cutlist1", "main"
+    
+    
+End Sub
+
+Sub RunMacro(path As String, moduleName As String, procName As String)
+    swApp.RunMacro2 path, moduleName, procName, swRunMacroOption_e.swRunMacroUnloadAfterRun, 0
+End Sub

@@ -1,0 +1,99 @@
+Sub main()
+    
+    Set swApp = Application.SldWorks
+    
+    Set swModel = swApp.ActiveDoc
+    
+    ' Check if the SolidWorks document is open
+    If swModel Is Nothing Then
+        MsgBox "No active SolidWorks document found.", vbExclamation
+        Exit Sub
+    End If
+
+    ConfigName = swModel.GetActiveConfiguration.Name
+    AnchorType = swBOMConfigurationAnchor_TopLeft
+    
+    CPath = swApp.GetCurrentMacroPathName()
+    ' Display CPath in a message box for debugging
+    Dim directoryPath As String
+    directoryPath = Left(CPath, InStrRev(CPath, "\"))
+    BOMTemplate = directoryPath & "cutlist.sldbomtbt"
+    OutputPath = directoryPath
+    
+    
+    
+    
+    ' Insert BOM Table using InsertBomTable3
+    Set swBOMTable = swModel.Extension.InsertBomTable3(BOMTemplate, 0, 0, swBomType_e.swBomType_Indented, ConfigName, False, 1, True)
+     
+    ' Check if BOM table insertion was successful
+    If swBOMTable Is Nothing Then
+        MsgBox "Failed to insert BOM table.", vbExclamation
+        Exit Sub
+    End If
+
+    Set swTable = swBOMTable
+
+    ' Save BOM table as Txt
+    Dim fileName As String
+    fileName = OutputPath & "\logs\" & swModel.GetTitle() & ".txt"
+
+    ' Check if the output file path is valid
+    If Dir(OutputPath, vbDirectory) = "" Then
+        MsgBox "Invalid output file path.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Save the BOM table as Excel file
+    swTable.SaveAsText fileName, vbTab
+
+    ' Check if the file was saved successfully
+    If Dir(fileName) = "" Then
+        MsgBox "Failed to save the BOM table as an Excel file.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Save the file path as a text file
+    Dim txtFileName As String
+    txtFileName = OutputPath & "\file_path.txt"
+
+    Open txtFileName For Output As #1
+    Print #1, fileName
+    Close #1
+
+    ' Get the path of the assembly file
+    Dim assemblyPath As String
+    assemblyPath = swModel.GetPathName()
+
+    ' Save the assembly path as a text file
+    Dim sourcePathFileName As String
+    sourcePathFileName = OutputPath & "\source_path.txt"
+
+    Open sourcePathFileName For Output As #1
+    Print #1, assemblyPath
+    Close #1
+
+    Set swAnn = swTable.GetAnnotation
+    swAnn.Select3 False, Nothing
+
+    swModel.EditDelete
+
+    ' Get the path of the macro file
+    macroPath = Left(directoryPath, Len(directoryPath) - 7) & "exe"
+
+    ' Construct the path of the executable
+    exePath = macroPath & "\cutlist_script_pdf.exe"
+
+    ' Open command prompt and execute the executable
+    Dim objShell As Object
+    Dim command As String
+    Set objShell = CreateObject("WScript.Shell")
+
+    ' Construct the command to execute the executable
+    command = "cmd.exe /c """ & exePath & """"
+
+    ' Run the command
+    Shell exePath, vbHide
+End Sub
+
+

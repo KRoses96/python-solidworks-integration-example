@@ -1,0 +1,51 @@
+Dim swApp As SldWorks.SldWorks
+Dim CPath As String
+Dim directoryPath_2 As String
+Dim directoryPath_3 As String
+Dim directoryPath_4 As String
+Dim directoryPath_5 As String
+Dim directoryPath_6 As String
+
+Sub main()
+    
+    Set swApp = Application.SldWorks
+    CPath = swApp.GetCurrentMacroPathName()
+    ' Display CPath in a message box for debugging
+    Dim directoryPath As String
+    directoryPath = Left(CPath, InStrRev(CPath, "\"))
+    directoryPath_2 = directoryPath & "Quantidade_Assembly.swp"
+    directoryPath_3 = directoryPath & "cutlist.swp"
+    directoryPath_4 = directoryPath & "lista_material.swp"
+    directoryPath_5 = directoryPath & "source_path.swp"
+    directoryPath_6 = directoryPath & "DXF.swp"
+    
+    RunMacro directoryPath_2, "Quantidade_Assembly1", "main"
+    RunMacro directoryPath_3, "cutlist1", "main"
+    RunMacro directoryPath_4, "lista_material1", "main"
+    RunMacro directoryPath_5, "source_path1", "main"
+    RunMacro directoryPath_6, "DXF_test1", "main"
+
+    ' Get the path of the macro file
+    macroPath = Left(directoryPath, Len(directoryPath) - 7) & "exe"
+    
+    ' Construct the path of the executable
+    exePath = macroPath & "\sheet_metal.exe"
+
+    ' Open command prompt and execute the executable
+    Dim objShell As Object
+    Dim command As String
+    Set objShell = CreateObject("WScript.Shell")
+    
+    ' Construct the command to execute the executable
+    command = "cmd.exe /c """ & exePath & """"
+    
+    ' Run the command
+    Shell exePath, vbHide
+    
+    
+End Sub
+
+Sub RunMacro(path As String, moduleName As String, procName As String)
+    swApp.RunMacro2 path, moduleName, procName, swRunMacroOption_e.swRunMacroUnloadAfterRun, 0
+End Sub
+

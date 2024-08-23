@@ -1,0 +1,34 @@
+Dim swApp As SldWorks.SldWorks
+Dim swModel As SldWorks.ModelDoc2
+Dim OutputPath As String
+Dim macroPath As String
+Dim CPath As String
+Sub main()
+    Set swApp = Application.SldWorks
+
+    Set swModel = swApp.ActiveDoc
+' Get the path of the assembly file
+    Dim assemblyPath As String
+    assemblyPath = swModel.GetPathName()
+    
+    Dim FilePath As String
+    Dim FileContent As String
+    Dim Op As String
+    
+    ' Get the current macro path using swApp
+    CPath = swApp.GetCurrentMacroPathName()
+    ' Display CPath in a message box for debugging
+    Dim directoryPath As String
+    directoryPath = Left(CPath, InStrRev(CPath, "\"))
+    
+    ' Define the file path to op.txt in the current directory of the macro
+    ' Save the assembly path as a text file
+    Dim sourcePathFileName As String
+    sourcePathFileName = directoryPath & "\source_path.txt"
+
+    Open sourcePathFileName For Output As #1
+    Print #1, assemblyPath
+    Close #1
+    
+Set swApp = Application.SldWorks
+End Sub
